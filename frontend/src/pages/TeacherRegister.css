@@ -1,0 +1,325 @@
+.teacher-register-page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    #eef4ff 0%,
+    #f7f9ff 45%,
+    #e8f7ff 100%
+  );
+}
+
+.teacher-register-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 25px 70px rgba(32, 74, 135, 0.18);
+  animation: cardEntrance 0.9s ease;
+  position: relative;
+  z-index: 5;
+}
+
+.teacher-info-section {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0d6efd, #4f46e5);
+  color: white;
+}
+
+.teacher-info-section::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  top: -70px;
+  right: -80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  animation: floatingShape 6s ease-in-out infinite;
+}
+
+.teacher-info-section::after {
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  bottom: -60px;
+  left: -50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: floatingShape 7s ease-in-out infinite reverse;
+}
+
+.teacher-info-content {
+  position: relative;
+  z-index: 2;
+  padding: 60px 35px;
+}
+
+.teacher-icon-wrapper {
+  width: 95px;
+  height: 95px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.teacher-icon {
+  font-size: 48px;
+}
+
+.teacher-description {
+  margin-top: 20px;
+  margin-bottom: 30px;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.teacher-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  animation: featureSlide 0.8s ease both;
+}
+
+.teacher-feature span {
+  width: 27px;
+  height: 27px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: bold;
+}
+
+.teacher-form-section {
+  padding: 45px;
+}
+
+.register-title {
+  color: #1e293b;
+}
+
+.custom-input-group,
+.custom-select {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.custom-input-group:focus-within,
+.custom-select:focus {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.12);
+}
+
+.custom-input-group .input-group-text {
+  border-right: none;
+  background: #f8faff;
+  border-radius: 12px 0 0 12px;
+}
+
+.custom-input-group .form-control {
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+}
+
+.custom-input-group .form-control:focus {
+  box-shadow: none;
+  border-color: #86b7fe;
+}
+
+.custom-select {
+  min-height: 48px;
+  border-radius: 12px;
+}
+
+.register-button {
+  position: relative;
+  overflow: hidden;
+  min-height: 52px;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(90deg, #0d6efd, #4f46e5);
+  box-shadow: 0 12px 25px rgba(13, 110, 253, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.register-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  transform: skewX(-20deg);
+  background: rgba(255, 255, 255, 0.3);
+  transition: left 0.7s ease;
+}
+
+.register-button:hover::before {
+  left: 140%;
+}
+
+.register-button:hover {
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 17px 32px rgba(13, 110, 253, 0.35);
+}
+
+.login-link {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+.animated-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.3;
+  filter: blur(2px);
+}
+
+.circle-one {
+  width: 220px;
+  height: 220px;
+  top: 8%;
+  left: 4%;
+  background: #7aa7ff;
+  animation: backgroundFloat 8s ease-in-out infinite;
+}
+
+.circle-two {
+  width: 160px;
+  height: 160px;
+  right: 7%;
+  bottom: 10%;
+  background: #85e4ff;
+  animation: backgroundFloat 7s ease-in-out infinite reverse;
+}
+
+.circle-three {
+  width: 95px;
+  height: 95px;
+  top: 25%;
+  right: 12%;
+  background: #a29bfe;
+  animation: backgroundFloat 6s ease-in-out infinite;
+}
+
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(45px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes iconFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes floatingShape {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  50% {
+    transform: translate(18px, 15px);
+  }
+}
+
+@keyframes featureSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-25px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes backgroundFloat {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  50% {
+    transform: translateY(-25px) translateX(18px);
+  }
+}
+
+@media (max-width: 991px) {
+  .teacher-info-content {
+    padding: 40px 30px;
+  }
+
+  .teacher-form-section {
+    padding: 35px 25px;
+  }
+
+  .teacher-register-card {
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 576px) {
+  .teacher-form-section {
+    padding: 30px 18px;
+  }
+
+  .teacher-info-content {
+    padding: 35px 22px;
+  }
+}
+.password-toggle {
+  min-width: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dee2e6 !important;
+  border-left: none !important;
+  border-radius: 0 12px 12px 0 !important;
+  cursor: pointer;
+  background: #f8faff !important;
+}
+
+.password-toggle:hover {
+  background: #edf3ff !important;
+}
+
+.password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.custom-input-group .form-control:has(+ .password-toggle) {
+  border-radius: 0;
+}
