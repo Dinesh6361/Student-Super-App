@@ -23,6 +23,7 @@ import Attendance from "./pages/Attendance";
 import TeacherLogin from "./pages/TeacherLogin";
 import TeacherRegister from "./pages/TeacherRegister";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import TeacherTimetable from "./pages/TeacherTimetable";
 function App() {
   return (
     <BrowserRouter>
@@ -51,6 +52,8 @@ function App() {
         <Route path="/teacher-register" element={<TeacherRegister />} />
         <Route path="/teacher-forgot-password" element={<TeacherForgotPassword />} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />}/>
+        <Route path="/teacher-timetable" element={<TeacherTimetable />}/>
+        
       </Routes>
     </BrowserRouter>
   );

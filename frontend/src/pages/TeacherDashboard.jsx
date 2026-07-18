@@ -291,7 +291,7 @@ function TeacherDashboard() {
 
                   <div className="col-md-6">
                     <Link
-                      to="/timetable"
+                      to="/teacher-timetable"
                       className="text-decoration-none"
                     >
                       <div className="quick-action-card action-purple">
