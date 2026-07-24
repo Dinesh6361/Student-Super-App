@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./TeacherDashboard.css";
@@ -53,6 +54,30 @@ function TeacherDashboard() {
   const teacherInitial =
     teacher.name?.charAt(0)?.toUpperCase() || "T";
 
+  const teacherId =
+    teacher.teacherId ||
+    teacher.employeeId ||
+    "Not available";
+
+  const teacherSubject =
+    teacher.subjectName ||
+    teacher.subject ||
+    "Not assigned";
+
+  const teacherDepartment =
+    teacher.department ||
+    teacher.course ||
+    "Department";
+
+  const teacherSemester =
+    teacher.semester || "-";
+
+  const teacherSection =
+    teacher.section || "-";
+
+  const teacherDesignation =
+    teacher.designation || "Teacher";
+
   return (
     <div className="teacher-dashboard-page">
       {/* Animated background shapes */}
@@ -80,8 +105,8 @@ function TeacherDashboard() {
                   </h2>
 
                   <p className="mb-0 dashboard-subtitle">
-                    Manage your classes, students and attendance
-                    from one place.
+                    Manage attendance, timetable, assignments
+                    and study materials from one place.
                   </p>
                 </div>
               </div>
@@ -122,11 +147,11 @@ function TeacherDashboard() {
                 </p>
 
                 <h3 className="fw-bold mb-0">
-                  Semester {teacher.semester || "-"}
+                  Semester {teacherSemester}
                 </h3>
 
                 <small>
-                  Section {teacher.section || "-"}
+                  Section {teacherSection}
                 </small>
               </div>
             </div>
@@ -141,7 +166,9 @@ function TeacherDashboard() {
                   Attendance
                 </p>
 
-                <h3 className="fw-bold mb-0">Manage</h3>
+                <h3 className="fw-bold mb-0">
+                  Manage
+                </h3>
 
                 <small>Mark daily attendance</small>
               </div>
@@ -158,11 +185,11 @@ function TeacherDashboard() {
                 </p>
 
                 <h5 className="fw-bold mb-0">
-                  {teacher.subject || "Not assigned"}
+                  {teacherSubject}
                 </h5>
 
                 <small>
-                  {teacher.department || "Department"}
+                  {teacherDepartment}
                 </small>
               </div>
             </div>
@@ -178,11 +205,11 @@ function TeacherDashboard() {
                 </p>
 
                 <h5 className="fw-bold mb-0">
-                  {teacher.designation || "Teacher"}
+                  {teacherDesignation}
                 </h5>
 
                 <small>
-                  ID: {teacher.employeeId || "-"}
+                  ID: {teacherId}
                 </small>
               </div>
             </div>
@@ -208,6 +235,7 @@ function TeacherDashboard() {
 
               <div className="dashboard-card-body">
                 <div className="row g-3">
+                  {/* Attendance */}
                   <div className="col-md-6">
                     <Link
                       to="/teacher/attendance"
@@ -235,9 +263,10 @@ function TeacherDashboard() {
                     </Link>
                   </div>
 
+                  {/* Assignments */}
                   <div className="col-md-6">
                     <Link
-                      to="/assignments"
+                      to="/teacher-assignments"
                       className="text-decoration-none"
                     >
                       <div className="quick-action-card action-orange">
@@ -251,7 +280,7 @@ function TeacherDashboard() {
                           </h5>
 
                           <p className="mb-0">
-                            Create and manage assignments.
+                            Create, edit and delete assignments.
                           </p>
                         </div>
 
@@ -262,6 +291,7 @@ function TeacherDashboard() {
                     </Link>
                   </div>
 
+                  {/* Notes */}
                   <div className="col-md-6">
                     <Link
                       to="/notes"
@@ -289,6 +319,7 @@ function TeacherDashboard() {
                     </Link>
                   </div>
 
+                  {/* Timetable */}
                   <div className="col-md-6">
                     <Link
                       to="/teacher-timetable"
@@ -347,6 +378,7 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Full Name</span>
+
                         <strong>
                           {teacher.name || "Not available"}
                         </strong>
@@ -362,6 +394,7 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Email Address</span>
+
                         <strong>
                           {teacher.email || "Not available"}
                         </strong>
@@ -376,10 +409,10 @@ function TeacherDashboard() {
                       </div>
 
                       <div>
-                        <span>Employee ID</span>
+                        <span>Teacher ID</span>
+
                         <strong>
-                          {teacher.employeeId ||
-                            "Not available"}
+                          {teacherId}
                         </strong>
                       </div>
                     </div>
@@ -393,9 +426,9 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Department</span>
+
                         <strong>
-                          {teacher.department ||
-                            "Not available"}
+                          {teacherDepartment}
                         </strong>
                       </div>
                     </div>
@@ -409,9 +442,9 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Designation</span>
+
                         <strong>
-                          {teacher.designation ||
-                            "Not available"}
+                          {teacherDesignation}
                         </strong>
                       </div>
                     </div>
@@ -425,9 +458,9 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Subject</span>
+
                         <strong>
-                          {teacher.subject ||
-                            "Not available"}
+                          {teacherSubject}
                         </strong>
                       </div>
                     </div>
@@ -441,9 +474,9 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Semester</span>
+
                         <strong>
-                          Semester{" "}
-                          {teacher.semester || "-"}
+                          Semester {teacherSemester}
                         </strong>
                       </div>
                     </div>
@@ -457,8 +490,9 @@ function TeacherDashboard() {
 
                       <div>
                         <span>Section</span>
+
                         <strong>
-                          Section {teacher.section || "-"}
+                          Section {teacherSection}
                         </strong>
                       </div>
                     </div>
@@ -483,11 +517,11 @@ function TeacherDashboard() {
                 </h4>
 
                 <p className="text-muted mb-1">
-                  {teacher.designation || "Teacher"}
+                  {teacherDesignation}
                 </p>
 
                 <span className="department-badge">
-                  {teacher.department || "Department"}
+                  {teacherDepartment}
                 </span>
 
                 <hr className="my-4" />
@@ -495,7 +529,7 @@ function TeacherDashboard() {
                 <div className="row">
                   <div className="col-6 border-end">
                     <h5 className="fw-bold mb-1">
-                      {teacher.semester || "-"}
+                      {teacherSemester}
                     </h5>
 
                     <small className="text-muted">
@@ -505,7 +539,7 @@ function TeacherDashboard() {
 
                   <div className="col-6">
                     <h5 className="fw-bold mb-1">
-                      {teacher.section || "-"}
+                      {teacherSection}
                     </h5>
 
                     <small className="text-muted">
@@ -537,8 +571,9 @@ function TeacherDashboard() {
 
                   <div>
                     <small>Subject</small>
+
                     <strong>
-                      {teacher.subject || "Not assigned"}
+                      {teacherSubject}
                     </strong>
                   </div>
                 </div>
@@ -550,8 +585,9 @@ function TeacherDashboard() {
 
                   <div>
                     <small>Semester</small>
+
                     <strong>
-                      Semester {teacher.semester || "-"}
+                      Semester {teacherSemester}
                     </strong>
                   </div>
                 </div>
@@ -563,8 +599,9 @@ function TeacherDashboard() {
 
                   <div>
                     <small>Section</small>
+
                     <strong>
-                      Section {teacher.section || "-"}
+                      Section {teacherSection}
                     </strong>
                   </div>
                 </div>
@@ -576,8 +613,9 @@ function TeacherDashboard() {
 
                   <div>
                     <small>Department</small>
+
                     <strong>
-                      {teacher.department || "-"}
+                      {teacherDepartment}
                     </strong>
                   </div>
                 </div>
@@ -587,6 +625,13 @@ function TeacherDashboard() {
                   className="btn btn-primary w-100 rounded-3 mt-3"
                 >
                   Open Attendance
+                </Link>
+
+                <Link
+                  to="/teacher-assignments"
+                  className="btn btn-warning w-100 rounded-3 mt-2"
+                >
+                  Manage Assignments
                 </Link>
               </div>
             </div>

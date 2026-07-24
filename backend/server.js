@@ -9,6 +9,9 @@ const authRoutes = require("./routes/authRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const teacherAuthRoutes = require("./routes/teacherAuthRoutes");
 const timetableRoutes = require("./routes/timetableRoutes");
+const assignmentRoutes = require("./routes/assignmentRoutes");
+const path = require("path");
+const submissionRoutes = require("./routes/submissionRoutes");
 
 
 const app = express();
@@ -29,10 +32,16 @@ app.use(
 // Parse JSON request bodies
 app.use(express.json());
 app.use("/api/timetable", timetableRoutes);
+app.use("/api/assignments", assignmentRoutes);
+app.use("/api/submissions",submissionRoutes);
 
 // Parse form data if needed
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
 
+);
 
 // Test route
 app.get("/", (req, res) => {

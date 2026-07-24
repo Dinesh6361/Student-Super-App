@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const Attendance = require("../models/Attendance");
@@ -8,7 +7,10 @@ const Subject = require("../models/Subject");
 
 // Escape special characters before using user input in RegExp
 const escapeRegex = (value = "") => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return String(value).replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
 };
 
 // Convert a date into the start of the selected day
@@ -40,7 +42,10 @@ const getStudents = async (req, res) => {
     }
 
     const semesterNumber = Number(semester);
-    const normalizedSection = section.trim().toUpperCase();
+
+    const normalizedSection = String(section)
+      .trim()
+      .toUpperCase();
 
     if (
       Number.isNaN(semesterNumber) ||
@@ -49,15 +54,20 @@ const getStudents = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Please enter a valid semester between 1 and 8.",
+        message:
+          "Please enter a valid semester between 1 and 8.",
       });
     }
 
     const students = await User.find({
       role: "student",
+
       semester: semesterNumber,
+
       section: {
-        $regex: `^${escapeRegex(normalizedSection)}$`,
+        $regex: `^${escapeRegex(
+          normalizedSection
+        )}$`,
         $options: "i",
       },
     })
@@ -97,26 +107,32 @@ const getClassDetails = async (req, res) => {
       section,
     } = req.query;
 
-    if (
-      !subjectName ||
-      !subjectCode ||
-      !semester ||
-      !section
-    ) {
+    console.log("Class details request:", {
+      subjectName,
+      subjectCode,
+      semester,
+      section,
+    });
+
+    if (!subjectCode || !semester || !section) {
       return res.status(400).json({
         success: false,
         message:
-          "Subject name, subject code, semester and section are required.",
+          "Subject code, semester and section are required.",
       });
     }
 
-    const normalizedSubjectName = subjectName.trim();
-    const normalizedSubjectCode = subjectCode
+    const normalizedSubjectName = subjectName
+      ? String(subjectName).trim()
+      : "";
+
+    const normalizedSubjectCode = String(subjectCode)
       .trim()
       .toUpperCase();
 
     const semesterNumber = Number(semester);
-    const normalizedSection = section
+
+    const normalizedSection = String(section)
       .trim()
       .toUpperCase();
 
@@ -127,18 +143,13 @@ const getClassDetails = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Please select a valid semester.",
+        message:
+          "Please select a valid semester between 1 and 8.",
       });
     }
 
+    // Find subject for exact section OR section ALL
     const subject = await Subject.findOne({
-      subjectName: {
-        $regex: `^${escapeRegex(
-          normalizedSubjectName
-        )}$`,
-        $options: "i",
-      },
-
       subjectCode: {
         $regex: `^${escapeRegex(
           normalizedSubjectCode
@@ -148,13 +159,29 @@ const getClassDetails = async (req, res) => {
 
       semester: semesterNumber,
 
-      section: {
-        $regex: `^${escapeRegex(
-          normalizedSection
-        )}$`,
-        $options: "i",
-      },
-    });
+      $or: [
+        {
+          section: {
+            $regex: `^${escapeRegex(
+              normalizedSection
+            )}$`,
+            $options: "i",
+          },
+        },
+
+        {
+          section: {
+            $regex: "^ALL$",
+            $options: "i",
+          },
+        },
+      ],
+    }).populate(
+      "teacher",
+      "name email employeeId department designation"
+    );
+
+    console.log("Subject found:", subject);
 
     if (!subject) {
       return res.status(404).json({
@@ -164,8 +191,23 @@ const getClassDetails = async (req, res) => {
       });
     }
 
+    // Optional check for subject name
+    if (
+      normalizedSubjectName &&
+      subject.subjectName &&
+      subject.subjectName.trim().toLowerCase() !==
+        normalizedSubjectName.toLowerCase()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: `Subject code ${normalizedSubjectCode} belongs to "${subject.subjectName}". Please enter the correct subject name.`,
+      });
+    }
+
+    // Fetch only students from selected section
     const students = await User.find({
       role: "student",
+
       semester: semesterNumber,
 
       section: {
@@ -182,13 +224,18 @@ const getClassDetails = async (req, res) => {
         name: 1,
       });
 
+    console.log(
+      "Students found:",
+      students.length
+    );
+
     return res.status(200).json({
       success: true,
 
       message:
         students.length > 0
           ? `${students.length} students loaded successfully.`
-          : "Subject found, but no students are registered for this class.",
+          : `Subject found, but no students are registered in Semester ${semesterNumber}, Section ${normalizedSection}.`,
 
       subjectId: subject._id,
 
@@ -199,13 +246,19 @@ const getClassDetails = async (req, res) => {
         subjectCode: subject.subjectCode,
         semester: subject.semester,
         section: subject.section,
+        teacher: subject.teacher || null,
       },
+
+      selectedSection: normalizedSection,
 
       count: students.length,
       students,
     });
   } catch (error) {
-    console.error("Get class details error:", error);
+    console.error(
+      "Get class details full error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -230,7 +283,10 @@ const saveAttendance = async (req, res) => {
       attendance,
     } = req.body;
 
-    console.log("Received attendance payload:", req.body);
+    console.log(
+      "Received attendance payload:",
+      req.body
+    );
 
     if (
       !teacher ||
@@ -243,18 +299,23 @@ const saveAttendance = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "All attendance details are required.",
+        message:
+          "All attendance details are required.",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(teacher)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(teacher)
+    ) {
       return res.status(400).json({
         success: false,
         message: "Invalid Teacher ID.",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(subject)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(subject)
+    ) {
       return res.status(400).json({
         success: false,
         message: "Invalid Subject ID.",
@@ -262,7 +323,8 @@ const saveAttendance = async (req, res) => {
     }
 
     const semesterNumber = Number(semester);
-    const normalizedSection = section
+
+    const normalizedSection = String(section)
       .trim()
       .toUpperCase();
 
@@ -277,7 +339,8 @@ const saveAttendance = async (req, res) => {
       });
     }
 
-    const attendanceDate = normalizeDate(date);
+    const attendanceDate =
+      normalizeDate(date);
 
     if (!attendanceDate) {
       return res.status(400).json({
@@ -286,7 +349,8 @@ const saveAttendance = async (req, res) => {
       });
     }
 
-    const teacherRecord = await Teacher.findById(teacher);
+    const teacherRecord =
+      await Teacher.findById(teacher);
 
     if (!teacherRecord) {
       return res.status(404).json({
@@ -295,7 +359,8 @@ const saveAttendance = async (req, res) => {
       });
     }
 
-    const subjectRecord = await Subject.findById(subject);
+    const subjectRecord =
+      await Subject.findById(subject);
 
     if (!subjectRecord) {
       return res.status(404).json({
@@ -304,10 +369,20 @@ const saveAttendance = async (req, res) => {
       });
     }
 
+    const subjectSection = String(
+      subjectRecord.section || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    const subjectMatchesSection =
+      subjectSection === normalizedSection ||
+      subjectSection === "ALL";
+
     if (
-      Number(subjectRecord.semester) !== semesterNumber ||
-      subjectRecord.section?.trim().toUpperCase() !==
-        normalizedSection
+      Number(subjectRecord.semester) !==
+        semesterNumber ||
+      !subjectMatchesSection
     ) {
       return res.status(400).json({
         success: false,
@@ -316,14 +391,19 @@ const saveAttendance = async (req, res) => {
       });
     }
 
-    const invalidAttendanceItem = attendance.find(
-      (item) =>
-        !item.student ||
-        !mongoose.Types.ObjectId.isValid(item.student) ||
-        !["Present", "Absent", "Late"].includes(
-          item.status
-        )
-    );
+    const invalidAttendanceItem =
+      attendance.find(
+        (item) =>
+          !item.student ||
+          !mongoose.Types.ObjectId.isValid(
+            item.student
+          ) ||
+          ![
+            "Present",
+            "Absent",
+            "Late",
+          ].includes(item.status)
+      );
 
     if (invalidAttendanceItem) {
       return res.status(400).json({
@@ -345,7 +425,10 @@ const saveAttendance = async (req, res) => {
       ),
     ];
 
-    if (uniqueStudentIds.length !== studentIds.length) {
+    if (
+      uniqueStudentIds.length !==
+      studentIds.length
+    ) {
       return res.status(400).json({
         success: false,
         message:
@@ -359,6 +442,7 @@ const saveAttendance = async (req, res) => {
       },
 
       role: "student",
+
       semester: semesterNumber,
 
       section: {
@@ -369,7 +453,10 @@ const saveAttendance = async (req, res) => {
       },
     }).select("_id");
 
-    if (validStudents.length !== studentIds.length) {
+    if (
+      validStudents.length !==
+      studentIds.length
+    ) {
       return res.status(400).json({
         success: false,
         message:
@@ -390,36 +477,46 @@ const saveAttendance = async (req, res) => {
         success: false,
         message:
           "Attendance is already marked for this subject and date. Use update attendance instead.",
-        attendanceId: existingAttendance._id,
+        attendanceId:
+          existingAttendance._id,
       });
     }
 
-    const newAttendance = await Attendance.create({
-  teacher: teacherRecord._id,
+    const newAttendance =
+      await Attendance.create({
+        teacher: teacherRecord._id,
 
-  teacherId:
-    teacherRecord.employeeId ||
-    teacherRecord.teacherId ||
-    teacherRecord._id.toString(),
+        teacherId:
+          teacherRecord.employeeId ||
+          teacherRecord.teacherId ||
+          teacherRecord._id.toString(),
 
-  subject: subjectRecord._id,
+        subject: subjectRecord._id,
 
-  subjectCode: subjectRecord.subjectCode
-    ?.trim()
-    .toUpperCase(),
+        subjectCode:
+          subjectRecord.subjectCode
+            ?.trim()
+            .toUpperCase(),
 
-  semester: semesterNumber,
-  section: normalizedSection,
-  date: attendanceDate,
+        semester: semesterNumber,
 
-  attendance: attendance.map((item) => ({
-    student: item.student,
-    status: item.status,
-  })),
-});
+        // Save selected student section, not subject ALL
+        section: normalizedSection,
+
+        date: attendanceDate,
+
+        attendance: attendance.map(
+          (item) => ({
+            student: item.student,
+            status: item.status,
+          })
+        ),
+      });
 
     const populatedAttendance =
-      await Attendance.findById(newAttendance._id)
+      await Attendance.findById(
+        newAttendance._id
+      )
         .populate(
           "teacher",
           "name email employeeId department designation"
@@ -435,11 +532,15 @@ const saveAttendance = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: "Attendance saved successfully.",
+      message:
+        "Attendance saved successfully.",
       attendance: populatedAttendance,
     });
   } catch (error) {
-    console.error("Save attendance error:", error);
+    console.error(
+      "Save attendance error:",
+      error
+    );
 
     if (error.code === 11000) {
       return res.status(409).json({
@@ -451,7 +552,8 @@ const saveAttendance = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Unable to save attendance.",
+      message:
+        "Unable to save attendance.",
       error: error.message,
     });
   }
@@ -461,7 +563,10 @@ const saveAttendance = async (req, res) => {
 // GET ATTENDANCE FOR CLASS AND DATE
 // GET /api/attendance/class
 // ======================================================
-const getClassAttendance = async (req, res) => {
+const getClassAttendance = async (
+  req,
+  res
+) => {
   try {
     const {
       subjectId,
@@ -483,14 +588,19 @@ const getClassAttendance = async (req, res) => {
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(subjectId)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        subjectId
+      )
+    ) {
       return res.status(400).json({
         success: false,
         message: "Invalid Subject ID.",
       });
     }
 
-    const attendanceDate = normalizeDate(date);
+    const attendanceDate =
+      normalizeDate(date);
 
     if (!attendanceDate) {
       return res.status(400).json({
@@ -503,7 +613,9 @@ const getClassAttendance = async (req, res) => {
       await Attendance.findOne({
         subject: subjectId,
         semester: Number(semester),
-        section: section.trim().toUpperCase(),
+        section: String(section)
+          .trim()
+          .toUpperCase(),
         date: attendanceDate,
       })
         .populate(
@@ -522,7 +634,8 @@ const getClassAttendance = async (req, res) => {
     if (!attendanceRecord) {
       return res.status(404).json({
         success: false,
-        message: "Attendance record not found.",
+        message:
+          "Attendance record not found.",
       });
     }
 
@@ -531,11 +644,15 @@ const getClassAttendance = async (req, res) => {
       attendance: attendanceRecord,
     });
   } catch (error) {
-    console.error("Get class attendance error:", error);
+    console.error(
+      "Get class attendance error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Unable to fetch attendance.",
+      message:
+        "Unable to fetch attendance.",
       error: error.message,
     });
   }
@@ -545,7 +662,10 @@ const getClassAttendance = async (req, res) => {
 // UPDATE ALREADY MARKED ATTENDANCE
 // PUT /api/attendance/:id
 // ======================================================
-const updateAttendance = async (req, res) => {
+const updateAttendance = async (
+  req,
+  res
+) => {
   try {
     const { attendance } = req.body;
 
@@ -555,27 +675,36 @@ const updateAttendance = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "Attendance list is required.",
+        message:
+          "Attendance list is required.",
       });
     }
 
     if (
-      !mongoose.Types.ObjectId.isValid(req.params.id)
+      !mongoose.Types.ObjectId.isValid(
+        req.params.id
+      )
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid attendance record ID.",
+        message:
+          "Invalid attendance record ID.",
       });
     }
 
-    const invalidAttendanceItem = attendance.find(
-      (item) =>
-        !item.student ||
-        !mongoose.Types.ObjectId.isValid(item.student) ||
-        !["Present", "Absent", "Late"].includes(
-          item.status
-        )
-    );
+    const invalidAttendanceItem =
+      attendance.find(
+        (item) =>
+          !item.student ||
+          !mongoose.Types.ObjectId.isValid(
+            item.student
+          ) ||
+          ![
+            "Present",
+            "Absent",
+            "Late",
+          ].includes(item.status)
+      );
 
     if (invalidAttendanceItem) {
       return res.status(400).json({
@@ -589,7 +718,12 @@ const updateAttendance = async (req, res) => {
       await Attendance.findByIdAndUpdate(
         req.params.id,
         {
-          attendance,
+          attendance: attendance.map(
+            (item) => ({
+              student: item.student,
+              status: item.status,
+            })
+          ),
         },
         {
           new: true,
@@ -612,21 +746,27 @@ const updateAttendance = async (req, res) => {
     if (!updatedAttendance) {
       return res.status(404).json({
         success: false,
-        message: "Attendance record not found.",
+        message:
+          "Attendance record not found.",
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: "Attendance updated successfully.",
+      message:
+        "Attendance updated successfully.",
       attendance: updatedAttendance,
     });
   } catch (error) {
-    console.error("Update attendance error:", error);
+    console.error(
+      "Update attendance error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Unable to update attendance.",
+      message:
+        "Unable to update attendance.",
       error: error.message,
     });
   }
@@ -636,11 +776,18 @@ const updateAttendance = async (req, res) => {
 // GET ATTENDANCE REPORT FOR ONE STUDENT
 // GET /api/attendance/student/:studentId
 // ======================================================
-const getStudentAttendance = async (req, res) => {
+const getStudentAttendance = async (
+  req,
+  res
+) => {
   try {
     const { studentId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+    if (
+      !mongoose.Types.ObjectId.isValid(
+        studentId
+      )
+    ) {
       return res.status(400).json({
         success: false,
         message: "Invalid student ID.",
@@ -683,15 +830,23 @@ const getStudentAttendance = async (req, res) => {
 
       totalClasses += 1;
 
-      if (studentAttendance.status === "Present") {
+      if (
+        studentAttendance.status ===
+        "Present"
+      ) {
         presentClasses += 1;
       }
 
-      if (studentAttendance.status === "Absent") {
+      if (
+        studentAttendance.status ===
+        "Absent"
+      ) {
         absentClasses += 1;
       }
 
-      if (studentAttendance.status === "Late") {
+      if (
+        studentAttendance.status === "Late"
+      ) {
         lateClasses += 1;
       }
 
@@ -712,7 +867,9 @@ const getStudentAttendance = async (req, res) => {
     const percentage =
       totalClasses === 0
         ? 0
-        : (attendedClasses / totalClasses) * 100;
+        : (attendedClasses /
+            totalClasses) *
+          100;
 
     return res.status(200).json({
       success: true,
@@ -753,4 +910,3 @@ module.exports = {
   updateAttendance,
   getStudentAttendance,
 };
-

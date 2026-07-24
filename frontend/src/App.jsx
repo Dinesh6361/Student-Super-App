@@ -24,6 +24,8 @@ import TeacherLogin from "./pages/TeacherLogin";
 import TeacherRegister from "./pages/TeacherRegister";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherTimetable from "./pages/TeacherTimetable";
+import TeacherAssignments from "./pages/TeacherAssignments";
+import TeacherAssignmentSubmissions from "./pages/TeacherAssignmentSubmissions";
 function App() {
   return (
     <BrowserRouter>
@@ -53,6 +55,8 @@ function App() {
         <Route path="/teacher-forgot-password" element={<TeacherForgotPassword />} />
         <Route path="/teacher-dashboard" element={<TeacherDashboard />}/>
         <Route path="/teacher-timetable" element={<TeacherTimetable />}/>
+        <Route path="/teacher-assignments" element={<TeacherAssignments />}/>
+        <Route path="/teacher-assignments/:assignmentId/submissions" element={<TeacherAssignmentSubmissions />}/>
         
       </Routes>
     </BrowserRouter>
